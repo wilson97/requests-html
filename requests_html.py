@@ -545,7 +545,9 @@ class HTML(BaseParser):
                 await page.close()
                 page = None
             return content, result, page
-        except TimeoutError:
+        except TimeoutError as e:
+            print("Timeout Error")
+            print(e)
             await page.close()
             page = None
             return None
