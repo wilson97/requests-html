@@ -537,6 +537,8 @@ class HTML(BaseParser):
 
             # Return the content of the page, JavaScript evaluated.
             content = await page.content()
+            print("After page.content()")
+            print(content)
             if not keep_page:
                 await page.close()
                 page = None
@@ -661,11 +663,8 @@ class HTML(BaseParser):
         for i in range(retries):
             if not content:
                 try:
-
                     content, result, page = self.session.loop.run_until_complete(self._async_render(url=self.url, script=script, sleep=sleep, wait=wait, content=self.html, reload=reload, scrolldown=scrolldown, timeout=timeout, keep_page=keep_page, cookies=cookies))
-                    print("Content: {}".format(content))
-                    print("Result: {}".format(result))
-                    print("Page: {}".format(page))
+ 
                 except TypeError as e:
                     print("TypeError occured")
                     print(e)
