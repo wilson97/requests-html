@@ -535,6 +535,7 @@ class HTML(BaseParser):
             if scrolldown:
                 await page._keyboard.up('PageDown')
 
+            print("Before page.content()")
             # Return the content of the page, JavaScript evaluated.
             content = await page.content()
             print("After page.content()")
@@ -790,7 +791,7 @@ class BaseSession(requests.Session):
     @property
     async def browser(self):
         if not hasattr(self, "_browser"):
-            self._browser = await pyppeteer.launch(ignoreHTTPSErrors=not(self.verify), headless=False, args=self.__browser_args)
+            self._browser = await pyppeteer.launch(ignoreHTTPSErrors=not(self.verify), headless=True, args=self.__browser_args)
 
         return self._browser
 
