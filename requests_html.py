@@ -516,6 +516,7 @@ class HTML(BaseParser):
                         await page.setCookie(cookie)
 
             # Load the given page (GET request, obviously.)
+            print("Before page.content()")
             if reload:
                 await page.goto(url, options={'timeout': int(timeout * 1000)})
             else:
