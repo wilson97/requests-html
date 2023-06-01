@@ -663,7 +663,11 @@ class HTML(BaseParser):
                 try:
 
                     content, result, page = self.session.loop.run_until_complete(self._async_render(url=self.url, script=script, sleep=sleep, wait=wait, content=self.html, reload=reload, scrolldown=scrolldown, timeout=timeout, keep_page=keep_page, cookies=cookies))
+                    print("Content: {}".format(content))
+                    print("Result: {}".format(result))
+                    print("Page: {}".format(page))
                 except TypeError:
+
                     pass
             else:
                 break
@@ -781,7 +785,7 @@ class BaseSession(requests.Session):
     @property
     async def browser(self):
         if not hasattr(self, "_browser"):
-            self._browser = await pyppeteer.launch(ignoreHTTPSErrors=not(self.verify), headless=True, args=self.__browser_args)
+            self._browser = await pyppeteer.launch(ignoreHTTPSErrors=not(self.verify), headless=False, args=self.__browser_args)
 
         return self._browser
 
