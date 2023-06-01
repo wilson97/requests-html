@@ -83,7 +83,8 @@ class BaseParser:
         self.skip_anchors = True
         self.default_encoding = default_encoding
         self._encoding = None
-        self._html = html.encode(DEFAULT_ENCODING) if isinstance(html, str) else html
+        self._html = html.encode(
+            DEFAULT_ENCODING) if isinstance(html, str) else html
         self._lxml = None
         self._pq = None
 
@@ -126,13 +127,13 @@ class BaseParser:
 
         # Scan meta tags for charset.
         if self._html:
-            self._encoding = html_to_unicode(self.default_encoding, self._html)[0]
+            self._encoding = html_to_unicode(
+                self.default_encoding, self._html)[0]
             # Fall back to requests' detected encoding if decode fails.
             try:
                 self.raw_html.decode(self.encoding, errors='replace')
             except UnicodeDecodeError:
                 self._encoding = self.default_encoding
-
 
         return self._encoding if self._encoding else self.default_encoding
 
@@ -229,7 +230,8 @@ class BaseParser:
             elements = []
 
             for element in elements_copy:
-                element.raw_html = lxml_html_tostring(cleaner.clean_html(element.lxml))
+                element.raw_html = lxml_html_tostring(
+                    cleaner.clean_html(element.lxml))
                 elements.append(element)
 
         return _get_first_or_list(elements, first)
@@ -256,7 +258,8 @@ class BaseParser:
         selected = self.lxml.xpath(selector)
 
         elements = [
-            Element(element=selection, url=self.url, default_encoding=_encoding or self.encoding)
+            Element(element=selection, url=self.url,
+                    default_encoding=_encoding or self.encoding)
             if not isinstance(selection, etree._ElementUnicodeResult) else str(selection)
             for selection in selected
         ]
@@ -267,7 +270,8 @@ class BaseParser:
             elements = []
 
             for element in elements_copy:
-                element.raw_html = lxml_html_tostring(cleaner.clean_html(element.lxml))
+                element.raw_html = lxml_html_tostring(
+                    cleaner.clean_html(element.lxml))
                 elements.append(element)
 
         return _get_first_or_list(elements, first)
@@ -325,7 +329,6 @@ class BaseParser:
         # Link is absolute and complete with scheme; nothing to be done here.
         return link
 
-
     @property
     def absolute_links(self) -> _Links:
         """All found links on page, in absolute form
@@ -377,14 +380,16 @@ class Element(BaseParser):
     ]
 
     def __init__(self, *, element, url: _URL, default_encoding: _DefaultEncoding = None) -> None:
-        super(Element, self).__init__(element=element, url=url, default_encoding=default_encoding)
+        super(Element, self).__init__(element=element,
+                                      url=url, default_encoding=default_encoding)
         self.element = element
         self.tag = element.tag
         self.lineno = element.sourceline
         self._attrs = None
 
     def __repr__(self) -> str:
-        attrs = ['{}={}'.format(attr, repr(self.attrs[attr])) for attr in self.attrs]
+        attrs = ['{}={}'.format(attr, repr(self.attrs[attr]))
+                 for attr in self.attrs]
         return "<Element {} {}>".format(repr(self.element.tag), ' '.join(attrs))
 
     @property
@@ -565,11 +570,14 @@ class HTML(BaseParser):
         # |      * ``secure`` (bool)
         # |      * ``sameSite`` (str): ``'Strict'`` or ``'Lax'``
         cookie_render = {}
+
         def __convert(cookiejar, key):
             try:
-                v = eval ("cookiejar."+key)
-                if not v: kv = ''
-                else: kv = {key: v}
+                v = eval("cookiejar."+key)
+                if not v:
+                    kv = ''
+                else:
+                    kv = {key: v}
             except:
                 kv = ''
             return kv
@@ -597,7 +605,8 @@ class HTML(BaseParser):
         cookies_render = []
         if isinstance(self.session.cookies, http.cookiejar.CookieJar):
             for cookie in self.session.cookies:
-                cookies_render.append(self._convert_cookiejar_to_render(cookie))
+                cookies_render.append(
+                    self._convert_cookiejar_to_render(cookie))
         return cookies_render
 
     def render(self, retries: int = 8, script: str = None, wait: float = 0.2, scrolldown=False, sleep: int = 0, reload: bool = True, timeout: Union[float, int] = 8.0, keep_page: bool = False, cookies: list = [{}], send_cookies_session: bool = False):
@@ -648,7 +657,8 @@ class HTML(BaseParser):
         Chromium into your home directory (``~/.pyppeteer``).
         """
 
-        self.browser = self.session.browser  # Automatically create a event loop and browser
+        # Automatically create a event loop and browser
+        self.browser = self.session.browser
         content = None
 
         # Automatically set Reload to False, if example URL is being used.
@@ -656,22 +666,25 @@ class HTML(BaseParser):
             reload = False
 
         if send_cookies_session:
-           cookies = self._convert_cookiesjar_to_render()
+            cookies = self._convert_cookiesjar_to_render()
 
         for i in range(retries):
             if not content:
                 try:
 
-                    content, result, page = self.session.loop.run_until_complete(self._async_render(url=self.url, script=script, sleep=sleep, wait=wait, content=self.html, reload=reload, scrolldown=scrolldown, timeout=timeout, keep_page=keep_page, cookies=cookies))
+                    content, result, page = self.session.loop.run_until_complete(self._async_render(
+                        url=self.url, script=script, sleep=sleep, wait=wait, content=self.html, reload=reload, scrolldown=scrolldown, timeout=timeout, keep_page=keep_page, cookies=cookies))
                 except TypeError:
                     pass
             else:
                 break
 
         if not content:
-            raise MaxRetries("Unable to render the page. Try increasing timeout")
+            raise MaxRetries(
+                "Unable to render the page. Try increasing timeout")
 
-        html = HTML(url=self.url, html=content.encode(DEFAULT_ENCODING), default_encoding=DEFAULT_ENCODING)
+        html = HTML(url=self.url, html=content.encode(
+            DEFAULT_ENCODING), default_encoding=DEFAULT_ENCODING)
         self.__dict__.update(html.__dict__)
         self.page = page
         return result
@@ -687,7 +700,7 @@ class HTML(BaseParser):
             reload = False
 
         if send_cookies_session:
-           cookies = self._convert_cookiesjar_to_render()
+            cookies = self._convert_cookiesjar_to_render()
 
         for _ in range(retries):
             if not content:
@@ -700,9 +713,11 @@ class HTML(BaseParser):
                 break
 
         if not content:
-            raise MaxRetries("Unable to render the page. Try increasing timeout")
+            raise MaxRetries(
+                "Unable to render the page. Try increasing timeout")
 
-        html = HTML(url=self.url, html=content.encode(DEFAULT_ENCODING), default_encoding=DEFAULT_ENCODING)
+        html = HTML(url=self.url, html=content.encode(
+            DEFAULT_ENCODING), default_encoding=DEFAULT_ENCODING)
         self.__dict__.update(html.__dict__)
         self.page = page
         return result
@@ -721,7 +736,8 @@ class HTMLResponse(requests.Response):
     @property
     def html(self) -> HTML:
         if not self._html:
-            self._html = HTML(session=self.session, url=self.url, html=self.content, default_encoding=self.encoding)
+            self._html = HTML(session=self.session, url=self.url,
+                              html=self.content, default_encoding=self.encoding)
 
         return self._html
 
@@ -758,8 +774,8 @@ class BaseSession(requests.Session):
     amongst other things.
     """
 
-    def __init__(self, mock_browser : bool = True, verify : bool = True,
-                 browser_args : list = ['--no-sandbox']):
+    def __init__(self, mock_browser: bool = True, verify: bool = True,
+                 browser_args: list = ['--no-sandbox']):
         super().__init__()
 
         # Mock a web browser's user agent.
@@ -771,7 +787,6 @@ class BaseSession(requests.Session):
 
         self.__browser_args = browser_args
 
-
     def response_hook(self, response, **kwargs) -> HTMLResponse:
         """ Change response encoding and replace it by a HTMLResponse. """
         if not response.encoding:
@@ -782,7 +797,10 @@ class BaseSession(requests.Session):
     async def browser(self):
         if not hasattr(self, "_browser"):
             print("HI THIS IS WILSON'S CODE")
-            self._browser = await pyppeteer.launch(ignoreHTTPSErrors=not(self.verify), headless=True, args=self.__browser_args)
+            self._browser = await pyppeteer.launch(ignoreHTTPSErrors=not (self.verify), headless=True, args=(self.__browser_args + [
+                '--proxy-server="direct://"',
+                '--proxy-bypass-list=*'
+            ]))
 
         return self._browser
 
@@ -797,7 +815,8 @@ class HTMLSession(BaseSession):
         if not hasattr(self, "_browser"):
             self.loop = asyncio.get_event_loop()
             if self.loop.is_running():
-                raise RuntimeError("Cannot use HTMLSession within an existing event loop. Use AsyncHTMLSession instead.")
+                raise RuntimeError(
+                    "Cannot use HTMLSession within an existing event loop. Use AsyncHTMLSession instead.")
             self._browser = self.loop.run_until_complete(super().browser)
         return self._browser
 
