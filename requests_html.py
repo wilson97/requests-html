@@ -516,7 +516,6 @@ class HTML(BaseParser):
                         await page.setCookie(cookie)
 
             # Load the given page (GET request, obviously.)
-            print("Before page.content()")
             if reload:
                 await page.goto(url, options={'timeout': int(timeout * 1000)})
             else:
@@ -536,11 +535,8 @@ class HTML(BaseParser):
             if scrolldown:
                 await page._keyboard.up('PageDown')
 
-            print("Before page.content()")
             # Return the content of the page, JavaScript evaluated.
             content = await page.content()
-            print("After page.content()")
-            print(content)
             if not keep_page:
                 await page.close()
                 page = None
@@ -794,7 +790,7 @@ class BaseSession(requests.Session):
     @property
     async def browser(self):
         if not hasattr(self, "_browser"):
-            self._browser = await pyppeteer.launch(ignoreHTTPSErrors=not(self.verify), headless=False, args=self.__browser_args)
+            self._browser = await pyppeteer.launch(ignoreHTTPSErrors=not(self.verify), headless=True, args=self.__browser_args)
 
         return self._browser
 
