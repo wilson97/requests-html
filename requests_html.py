@@ -666,9 +666,15 @@ class HTML(BaseParser):
                     print("Content: {}".format(content))
                     print("Result: {}".format(result))
                     print("Page: {}".format(page))
-                except TypeError:
-
+                except TypeError as e:
+                    print("TypeError occured")
+                    print(e)
                     pass
+
+                except Exception as e:
+                    print("Exception occured")
+                    print(e)
+                    raise e
             else:
                 break
 
